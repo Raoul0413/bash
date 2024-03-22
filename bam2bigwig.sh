@@ -27,20 +27,23 @@ mamba create -n bam2bigwig --yes
 conda activate bam2bigwig
 conda install -c bioconda deeptools samtools --yes
 
+# The BAM files in the input directory are copied to the output directory
+cp "$input_dir"/*.bam "$output_dir"
+
 # Index BAM files in the temporary directory
-for bam_file in "$input_dir"/*.bam; do
+for bam_file in "$output_dir"/*.bam; do
     if [ -e "$bam_file" ]; then
         bam_file_name=$(basename "$bam_file" .bam)
-        nice samtools index "$bam_file" "$input_dir/${bam_file_name}.bai"
+        nice samtools index "$bam_file" "$output_dir/${bam_file_name}.bai"
     fi
 done
 
 # Convert indexed BAM files to BigWig format
-for indexed_bam_file in "$input_dir"/*.bai; do
+for indexed_bam_file in "$output_dir"/*.bai; do
     if [ -e "$indexed_bam_file" ]; then
         bam_file_name=$(basename "$indexed_bam_file" .bai)
         bigwig="$output_dir/${bam_file_name}.bw"
-        nice bamCoverage -b "$input_dir/$bam_file_name.bam" -o "$bigwig" &>> "$log_file"
+        nice bamCoverage -b "$output_dir/$bam_file_name.bam" -o "$bigwig" &>> "$log_file"
         echo "Converted $bam_file_name to $(basename "$bigwig")" >> "$log_file"
     fi
 done
