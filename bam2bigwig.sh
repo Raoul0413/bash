@@ -45,6 +45,9 @@ for indexed_bam_file in "$output_dir"/*.bai; do
         bigwig="$output_dir/${bam_file_name}.bw"
         nice bamCoverage -b "$output_dir/$bam_file_name.bam" -o "$bigwig" &>> "$log_file"
         echo "Converted $bam_file_name to $(basename "$bigwig")" >> "$log_file"
+
+        rm "$output_dir/$bam_file_name.bam"
+        rm "$output_dir/$bam_file_name.bai"
     fi
 done
 
